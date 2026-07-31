@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>я скучаю, короче</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050508;
+      --surface: rgba(12, 10, 16, 0.8);
+      --border: rgba(255, 255, 255, 0.06);
+      --text: #e4e0ec;
+      --muted: #6b6774;
+      --accent: #b84c4c;
+      --accent-glow: rgba(184, 76, 76, 0.25);
+      --font: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.5;
+      z-index: 999;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .thought-window {
+      background: var(--surface);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 24px;
+      transition: transform 0.3s ease, border-color 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+    .thought-window:hover {
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+    .thought-window .win-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .thought-window .win-body {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text);
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text);
+      padding: 10px 24px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
+      display: inline-block;
+      margin-top: 12px;
+      text-decoration: none;
+    }
+    .btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 18px var(--accent-glow);
+      color: #fff;
+    }
+    .message-bubble {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin: 8px 0;
+      font-size: 0.85rem;
+    }
+    .chat-window {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+    .chat-message.me {
+      background: rgba(184, 76, 76, 0.2);
+      border: 1px solid rgba(184, 76, 76, 0.3);
+      align-self: flex-end;
+      text-align: right;
+    }
+    .chat-message.her {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      align-self: flex-start;
+    }
+    .music-widget {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .progress-line {
+      flex: 1;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+    }
+    .fullscreen-memory {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,5,8,0.95);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: var(--text);
+      text-align: center;
+      padding: 24px;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    @media (max-width: 500px) {
+      .container { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <audio id="bg-audio" src="music/adrianne-lenker.mp3" preload="auto"></audio>
+  <div class="container" id="main-container">
+    
+    <div style="text-align:center; margin:40px 0 20px;">
+      <h1 style="font-weight:300; font-size:2.2rem;">я скучаю по тебе</h1>
+      <p style="color:var(--muted); margin-top:8px;">вот и всё.</p>
+      <button class="btn" id="enter-main">ладно, заходи</button>
+    </div>
+
+    <div id="main-content" style="display:none; flex-direction:column; gap:20px;">
+     
+      <div class="thought-window" style="text-align:center;">
+        <div class="win-body" id="live-clock" style="font-family:var(--font-mono); font-size:2rem;">00:00</div>
+        <p style="color:var(--muted); font-size:0.8rem;">я опять думаю о тебе</p>
+      </div>
+
+   
+      <div class="thought-window" id="unsent-window">
+        <div class="win-title">НЕОТПРАВЛЕННЫЕ <span>17</span></div>
+        <div class="win-body" id="unsent-content">
+          <p>я хотел тебе написать сегодня</p>
+          <p style="color:var(--muted);">но потом подумал, что ты, наверное, занята</p>
+        </div>
+        <button class="btn" id="unsent-next">следующее</button>
+      </div>
+
+      
+      <div class="thought-window" id="memory-window">
+        <div class="win-title">ВОСПОМИНАНИЯ <span id="memory-count">04</span></div>
+        <div class="win-body" id="memory-list">
+          <div class="message-bubble" data-memory="0">помнишь, как мы тогда до 4 утра сидели в дискорде?</div>
+          <div class="message-bubble" data-memory="1">тот самый день, когда ты сказала…</div>
+          <div class="message-bubble" data-memory="2">я до сих пор помню ту одну твою фразу</div>
+          <div class="message-bubble" data-memory="3">ты бы сейчас с этого посмеялась</div>
+        </div>
+      </div>
+
+     
+      <div class="thought-window" id="show-window">
+        <div class="win-title">ПЕСНЯ ДЛЯ ТЕБЯ</div>
+        <div class="win-body" id="show-list">
+          <div class="message-bubble">♪ эту песню - потому что она о звучала в день нашего знакомства</div>
+        </div>
+        <div class="music-widget" id="music-widget" style="margin-top:12px;">
+          <button id="play-btn" style="background:none;border:none;color:var(--accent);font-size:1.2rem;cursor:pointer;">▶</button>
+          <span style="font-size:0.8rem;">Adrianne Lenker — forwards beckon rebound</span>
+          <div class="progress-line" id="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="thought-window" id="chat-window">
+        <div class="win-title">НАШ ЧАТ</div>
+        <div class="chat-window" id="chat-container">
+          <div class="chat-message me">привет</div>
+          <div class="chat-message her">привет</div>
+          <div class="chat-message me">чем занимаешься?</div>
+          <div class="chat-message her">скучаю</div>
+          <div class="chat-message me">ну а что</div>
+          <div class="chat-message her">дурак</div>
+          <div class="chat-message me">да кись..(</div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+          <button class="btn chat-option" data-reply="посмотреть сайт">посмотреть сайт</button>
+          <button class="btn chat-option" data-reply="почитать">почитать</button>
+          <button class="btn chat-option" data-reply="услышать, что я думаю">услышать, что я думаю</button>
+        </div>
+      </div>
+
+     
+      <div style="text-align:center; margin:40px 0;">
+        <p style="color:var(--muted);">короче.</p>
+        <p style="margin:10px 0;">я просто хотел сказать, что скучаю.</p>
+        <p style="margin-bottom:20px;">очень.</p>
+        <a class="btn" href="https://t.me/loveisthis" target="_blank" rel="noopener">написать мне</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const audio = document.getElementById('bg-audio');
+      let musicPlaying = false;
+      const playBtn = document.getElementById('play-btn');
+      const progressFill = document.getElementById('progress-fill');
+      const progressBar = document.getElementById('progress-bar');
+
+     
+      playBtn.addEventListener('click', () => {
+        if (!musicPlaying) {
+          audio.play().catch(err => console.log('Музыка не найдена или заблокирована'));
+          musicPlaying = true;
+          playBtn.textContent = '⏸';
+        } else {
+          audio.pause();
+          musicPlaying = false;
+          playBtn.textContent = '▶';
+        }
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        const pct = (audio.currentTime / audio.duration) * 100 || 0;
+        progressFill.style.width = pct + '%';
+      });
+
+      progressBar.addEventListener('click', (e) => {
+        const rect = progressBar.getBoundingClientRect();
+        const pct = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = pct * audio.duration;
+      });
+
+      
+      function updateClock() {
+        const now = new Date();
+        document.getElementById('live-clock').textContent = 
+          String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+      }
+      updateClock();
+      setInterval(updateClock, 10000);
+
+      // Вход
+      document.getElementById('enter-main').addEventListener('click', () => {
+        const main = document.getElementById('main-content');
+        main.style.display = 'flex';
+        document.getElementById('enter-main').style.display = 'none';
+      });
+
+     
+      const unsentMessages = [
+        'я хотел тебе написать сегодня',
+        'но потом подумал, что ты, занята,ты ведь гуляешь и совсем недолго тебя нету но..',
+        'потом прошло пару времени',
+        'и я всё ещё хотел тебе написать',
+        'я уже напечатал "яскучаю"',
+        'но удалил',
+        'потому что это звучало слишком обычно',
+        'я не хочу быть обычно',
+        'я хочу, чтобы ты знала, что я скучаю именно сейчас',
+      ];
+      let unsentIndex = -1;
+      const unsentContent = document.getElementById('unsent-content');
+      document.getElementById('unsent-next').addEventListener('click', () => {
+        unsentIndex = (unsentIndex + 1) % unsentMessages.length;
+        unsentContent.innerHTML = `<p>${unsentMessages[unsentIndex]}</p>`;
+      });
+
+      
+      const memoryDetails = [
+        { title: 'тот самый вечер', text: 'мы сидели в дискорде до 4 утра, и я помню, как ты хотела чтобы я лег спать а я не послушал и ты уснула, ты так мило спишь...' },
+        { title: 'тот самый день', text: 'услышал твой голос увидев твою фотку вперыве подумал какая же ты красивая у меня...' },
+        { title: 'та самая фраза', text: 'однажды ты сказала: «я здесь». и с тех пор это моя любимая фраза.' },
+        { title: 'ты бы посмеялась', text: 'я бы скинул макдональдса и мы бы смеялись.. я очень скучаю(' },
+      ];
+
+      document.querySelectorAll('[data-memory]').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.memory);
+          const mem = memoryDetails[idx];
+          const div = document.createElement('div');
+          div.className = 'fullscreen-memory';
+          div.innerHTML = `
+            <h3 style="font-weight:300; margin-bottom:20px;">${mem.title}</h3>
+            <p style="max-width:400px; line-height:1.8;">${mem.text}</p>`;
+          const closeBtn = document.createElement('button');
+          closeBtn.className = 'btn';
+          closeBtn.textContent = 'закрыть';
+          closeBtn.addEventListener('click', () => div.remove());
+          div.appendChild(closeBtn);
+          document.body.appendChild(div);
+        });
+      });
+
+     
+      const chatContainer = document.getElementById('chat-container');
+      const chatButtons = document.querySelectorAll('.chat-option');
+      
+      chatButtons.forEach(btn => {
+        btn.addEventListener('click', function handler() {
+          const reply = this.dataset.reply;
+          const herMsg = document.createElement('div');
+          herMsg.className = 'chat-message her';
+          herMsg.textContent = reply;
+          chatContainer.appendChild(herMsg);
+          
+          chatButtons.forEach(b => b.disabled = true);
+          
+          setTimeout(() => {
+            const meMsg = document.createElement('div');
+            meMsg.className = 'chat-message me';
+            if (reply === 'посмотреть сайт') meMsg.textContent = 'ты уже его смотришь :)';
+            else if (reply === 'почитать') meMsg.textContent = 'я бы дал тебе почитать свои мысли, но они все о тебе.';
+            else if (reply === 'услышать, что я думаю') meMsg.textContent = 'я скучаю. это всё, что у меня есть.';
+            chatContainer.appendChild(meMsg);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            setTimeout(() => {
+              chatButtons.forEach(b => b.disabled = false);
+            }, 2000);
+          }, 600);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
